@@ -1,0 +1,16 @@
+{
+  "testRailEmail": "",
+  "testRailPassword": "",
+  "URL": "",
+  "email": "",
+  "password": "",
+  "clientFullMode": {
+    "client_user_ID": "",
+    "project1_ID": "",
+    "project2_ID": ""
+  },
+  "clientTeaserMode": {
+    "client_user_ID": "",
+    "project1_ID": ""
+  }
+}

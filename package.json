@@ -1,0 +1,28 @@
+{
+  "name": "udemy-playwright",
+  "version": "1.0.0",
+  "description": "testing project",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "tsc --incremental -p tests/tsconfig.json",
+    "test-testrail": "npm run pretest && npm run testrail -c _build",
+    "test-headless": "npm run pretest && npm run headless -c _build",
+    "test-debug": "npm run pretest && npm run debug -c _build",
+    "testrail": "playwright test --config=testrun-setup.config.ts && playwright test --config=main.config.ts --project=Chromium --repeat-each 1  --workers 3",
+    "headless": "playwright test --config=testrun-erase.config.ts && playwright test --config=main.config.ts --project=Chromium --repeat-each 1  --workers 3",
+    "debug": " playwright test --config=testrun-erase.config.ts && playwright test --config=debug.config.ts --project=Chromium --repeat-each 1 --workers 3",
+    "report": "npx playwright show-report",
+    "simulate-browser": "npx playwright open --timezone='Europe/Rome' --lang='it-IT' google.com"
+  },
+  "author": "Mykhailo",
+  "license": "ISC",
+  "devDependencies": {
+    "mailosaur": "^8.4.0",
+    "prettier": "2.6.2"
+  },
+  "dependencies": {
+    "@dlenroc/testrail": "1.6.3",
+    "@faker-js/faker": "7.1.0",
+    "@playwright/test": "1.21.1"
+  }
+}

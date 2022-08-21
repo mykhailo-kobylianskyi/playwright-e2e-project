@@ -42,8 +42,7 @@ test.describe.parallel('BYOE: Compliance Training', () => {
     callPage = new CallPage(page)
     expertsPage = new ExpertsPage(page)
     complianceTrainingPage = new ComplianceTrainingPage(page)
-    await loginPage.fillLoginForm(ENV.email, ENV.password)
-    await loginPage.submitCredentials()
+    await loginPage.loginWithIAM(ENV)
     await loginPage.loginAsUser(ENV.URL, ENV.clientFullMode.client_user_ID)
     await expertsPage.openExpertTab(ENV.URL, ENV.clientFullMode.project1_ID)
     await byoePage.assertExpertTabDisplayed()
@@ -60,8 +59,8 @@ test.describe.parallel('BYOE: Compliance Training', () => {
     page,
   }, testInfo) => {
     //checking Complaince Warnign on the Expert card - Expert tab
-    await byoePage.assertComplainceMessage()
     await byoePage.fillForm(byoeData)
+    await byoePage.checkNoInvitation()
     await byoePage.submitFormWithContinueButton()
     await byoePage.agreeOnAgreement()
     await byoePage.assertComplainceMessage()
@@ -76,20 +75,13 @@ test.describe.parallel('BYOE: Compliance Training', () => {
     await callPage.assertExpertCardDetails(byoeData)
     await callPage.assertCallDetails(byoeData)
     await byoePage.assertComplainceMessage()
-    //checking Complaince Warnign on the BYOE page
-    await expertsPage.openExpertTab(ENV.URL, ENV.clientFullMode.project2_ID)
-    await byoePage.assertExpertTabDisplayed()
-    await byoePage.navigateToByoeForm()
-    await byoePage.fillEmailInputWithUniqueEmail(byoeData)
-    await byoePage.assertEmailAddressWarning()
-    await byoePage.assertAutocompleteFormValues(byoeData)
-    await byoePage.assertComplainceMessage()
   })
 
   test('Check that BYOE gets invitation after compliting CT', async ({
     page,
   }, testInfo) => {
     await byoePage.fillForm(byoeData)
+    await byoePage.checkNoInvitation()
     await byoePage.submitFormWithContinueButton()
     await byoePage.agreeOnAgreement()
     await expertsPage.asserExpertInProejct(byoeData)
@@ -106,12 +98,12 @@ test.describe.parallel('BYOE: Compliance Training', () => {
     page,
   }, testInfo) => {
     await byoePage.fillForm(byoeData)
+    await byoePage.checkNoInvitation()
     await byoePage.provideSchedulingDetails('45 minutes')
     await byoePage.submitFormWithContinueButton()
     await byoePage.agreeOnAgreement()
-    await byoePage.assertSuccessAllert('Call was scheduled')
-    await expertsPage.searchForExpert(byoeData)
-    await expertsPage.assertTitleCallScheduled()
+    // await byoePage.assertSuccessAllert('Call was scheduled')
+    await expertsPage.assertExpertStatus('Call scheduled', byoeData)
     await complianceTrainingPage.compelteCTFromPlaceholder(byoeData)
   })
 
@@ -119,12 +111,12 @@ test.describe.parallel('BYOE: Compliance Training', () => {
     page,
   }, testInfo) => {
     await byoePage.fillForm(byoeData)
+    await byoePage.checkNoInvitation()
     await byoePage.provideSchedulingDetails('45 minutes')
     await byoePage.submitFormWithContinueButton()
     await byoePage.agreeOnAgreement()
-    await byoePage.assertSuccessAllert('Call was scheduled')
-    await expertsPage.searchForExpert(byoeData)
-    await expertsPage.assertTitleCallScheduled()
+    // await byoePage.assertSuccessAllert('Call was scheduled')
+    await expertsPage.assertExpertStatus('Call scheduled', byoeData)
     await complianceTrainingPage.compelteCTFromPlaceholder(byoeData)
     await page.reload()
     await expertsPage.assertCTCompletedNote()

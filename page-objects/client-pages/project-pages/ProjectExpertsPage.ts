@@ -1,19 +1,13 @@
 import { Page, Locator, expect } from '@playwright/test'
-import {
-  getCurrentDay,
-  getCurrentDayForDatepicker,
-  getCurrentTimeFormated,
-} from '../../../utils/data-helpers'
+import { getCurrentDay } from '../../../utils/data-helpers'
 import { BasePage } from '../../BasePage'
 
 export class ExpertsPage extends BasePage {
   readonly addToShortlistButton: Locator
   readonly expertStatus: Locator
-
   readonly removeFromShortlistButton: Locator
   readonly rejectExpertButton: Locator
   readonly unrejectExpertButton: Locator
-  readonly callScheduledTitle: Locator
   readonly editExpertButton: Locator
   readonly scheduleCallButton: Locator
   readonly createCallButton: Locator
@@ -26,14 +20,15 @@ export class ExpertsPage extends BasePage {
   readonly toolBarSearch: Locator
   readonly exitRejectedFilterButton: Locator
   readonly callStatusButton: Locator
+  readonly secondLineItem: Locator
 
   constructor(page: Page) {
     super(page)
+    this.secondLineItem = page.locator('//tbody/tr >>nth=1')
     this.addToShortlistButton = page.locator(
       'button:has-text("Add to shortlist")'
     )
     this.callStatusButton = page.locator('button:has([data-icon="phone"])')
-
     this.removeFromShortlistButton = page.locator(
       'button:has-text("Remove from shortlist")'
     )
@@ -42,11 +37,10 @@ export class ExpertsPage extends BasePage {
       'button:has-text("Move back to list")'
     )
     this.exitRejectedFilterButton = page.locator(
-      '#experts-filters div:has-text("Rejected experts") >> nth=1'
+      '#experts-filters div:has-text("Rejected experts") >> nth=1 >> div>> nth=0'
     )
     this.toolBarSearch = page.locator('#experts-top-toolbar>div>>nth=1>>input')
     this.toolBarShowAs = page.locator('#experts-top-toolbar>div>> nth=0')
-    this.callScheduledTitle = page.locator('button:has-text("Call scheduled")')
     this.rateInput = page.locator('[placeholder="Rate"]')
     this.editExpertButton = page.locator('button:has-text("Edit profile")')
     this.scheduleCallButton = page.locator('button:has-text("Schedule a call")')
@@ -76,30 +70,73 @@ export class ExpertsPage extends BasePage {
       'Not available for scheduling. You will be able to schedule your own experts when your organisation approves this feature.'
     )
   }
-  async searchForExpert(data) {
+
+  async clearSearch() {
     await this.clearField(this.toolBarSearch)
-    await this.toolBarSearch.type(data.firstName + ' ' + data.lastName, {
-      delay: 20,
-    })
-    await this.page.waitForTimeout(1000)
-  }
-  async compactListView() {
-    await this.toolBarShowAs.click()
-    await this.page.click('[tabindex="-1"]:has-text("compact list")')
-  }
-  async detailedListView() {
-    await this.toolBarShowAs.click({
-      delay: 100,
-    })
-    await this.page.click('[tabindex="-1"]:has-text("detailed list")', {
-      delay: 100,
-    })
   }
 
-  async assertExpertStatusInList(data, status) {
-    await this.compactListView()
-    await this.searchForExpert(data)
-    await expect(this.expertStatus).toHaveText(status)
+  async searchForExpert(data, expertCardState: 'detailed' | 'compact') {
+    await this.clearSearch()
+    await this.toolBarSearch.type(data.firstName + ' ' + data.lastName)
+    await this.changeListView('compact')
+    await this.secondLineItem.waitFor({ state: 'detached' })
+    if (expertCardState == 'detailed') {
+      await this.changeListView('detailed')
+      const element = this.page.locator(
+        `h3:has-text("${data.jobTitle} at ${data.companyName}")`
+      )
+      await expect(element).toBeVisible()
+    }
+  }
+
+  async changeListView(viewOption: 'compact' | 'detailed') {
+    await this.toolBarShowAs.click()
+    await this.page.click(`[tabindex="-1"]:has-text("${viewOption} list")`)
+  }
+
+  async assertExpertLineitemStatus(data, status) {
+    await this.searchForExpert(data, 'compact')
+    const element = this.page.locator(
+      `tbody[role="rowgroup"] >> text=${status}`
+    )
+    await expect(element).toBeVisible()
+  }
+
+  async assertExpertPresence(data, expectedPresence: boolean) {
+    const element = this.page.locator(
+      `text= • ${data.firstName} ${data.lastName}`
+    )
+    await this.changeListView('compact')
+    if (expectedPresence) {
+      await expect(element).toBeVisible()
+    } else {
+      await expect(element).not.toBeVisible()
+    }
+  }
+
+  async asserExpertCardOpened(data) {
+    await expect(
+      this.page.locator(
+        `h3:has-text("${data.jobTitle} at ${data.companyName}")`
+      )
+    ).toBeVisible()
+  }
+
+  async openExpertsCallPage(data) {
+    await this.searchForExpert(data, 'detailed')
+    await this.callStatusButton.click()
+    await this.assertPrecenceOnPage('/client/calls/')
+  }
+
+  async asserExpertInProejct(data) {
+    await this.searchForExpert(data, 'detailed')
+    await this.asserExpertCardOpened(data)
+  }
+
+  async openExpertTab(url, projectId) {
+    await this.page.goto(`${url}/client/projects/${projectId}/experts`, {
+      waitUntil: 'domcontentloaded',
+    })
   }
 
   async assertConflictCallWarning() {
@@ -114,59 +151,19 @@ export class ExpertsPage extends BasePage {
     await this.assertValueInSelector('Currency', data.currency)
     await expect(this.createCallButton).toBeDisabled()
   }
-  async assertExpertInExpertsList(data, expectedPresence: boolean) {
-    await this.compactListView()
-    if (expectedPresence) {
-      await expect(
-        this.page.locator(
-          `text=${data.jobTitle} at ${data.companyName}  >> nth=0`
-        )
-      ).toBeVisible()
-      await expect(
-        this.page.locator(`text= • ${data.firstName} ${data.lastName}`)
-      ).toBeVisible()
-    } else {
-      await expect(
-        this.page.locator(
-          `text=${data.jobTitle} at ${data.companyName} >> nth=0`
-        )
-      ).not.toBeVisible()
-      await expect(
-        this.page.locator(`text= • ${data.firstName} ${data.lastName}`)
-      ).not.toBeVisible()
-    }
-  }
 
-  async openExpertsCallPage(data) {
-    await this.searchForExpert(data)
-    await this.detailedListView()
-    await this.callStatusButton.click()
-    await this.assertPrecenceOnPage('/client/calls/')
-  }
-
-  async asserExpertInProejct(data) {
-    await this.searchForExpert(data)
-    await this.asserExpertCardOpened(data)
-  }
-  async asserExpertCardOpened(data) {
-    await expect(
-      this.page.locator(
-        `h3:has-text("${data.jobTitle} at ${data.companyName}")`
-      )
-    ).toBeVisible()
-  }
-
-  async openExpertTab(url, projectId) {
-    await this.page.goto(url + '/client/projects/' + projectId + '/experts')
-  }
   async bookCallOnSetTimeForm() {
-    await expect(this.createCallButton).toBeEnabled({ timeout: 5000 })
+    await expect(this.createCallButton).toBeEnabled()
     await this.createCallButton.click()
     await this.assertSuccessAllert('Call was scheduled')
   }
-  async assertTitleCallScheduled() {
-    await expect(this.callScheduledTitle).toBeVisible()
+
+  async assertExpertStatus(title, data) {
+    await this.searchForExpert(data, 'detailed')
+    const element = this.page.locator(`button:has-text("${title}")`)
+    await expect(element).toBeVisible()
   }
+
   async assertRateOnSetTimeForm(rate) {
     await expect(this.rateInput).toHaveValue(rate)
   }
@@ -200,10 +197,9 @@ export class ExpertsPage extends BasePage {
   async exitFromRejectedFilter() {
     await this.exitRejectedFilterButton.click()
   }
+
   async removeFromShortlist(data) {
-    await this.searchForExpert(data)
-    await this.detailedListView()
-    await expect(this.removeFromShortlistButton).toHaveCount(1)
+    await this.searchForExpert(data, 'detailed')
     await expect(this.removeFromShortlistButton).toBeVisible()
     await this.removeFromShortlistButton.click()
     await this.assertSuccessAllert('Expert was removed from shortlist.')
@@ -217,6 +213,7 @@ export class ExpertsPage extends BasePage {
       )
     ).toBeVisible()
   }
+
   async openEditExpertForm() {
     this.editExpertButton.click()
   }

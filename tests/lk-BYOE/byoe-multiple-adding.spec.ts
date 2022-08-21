@@ -23,7 +23,7 @@ type Input = {
   linkedinURl: string
 }
 
-test.describe.parallel('BYOE modes', () => {
+test.describe.parallel('Multiple submission on a project handling', () => {
   let byoeData: Input
   let byoePage: ByoePage
   let loginPage: LoginPage
@@ -36,13 +36,10 @@ test.describe.parallel('BYOE modes', () => {
     loginPage = new LoginPage(page)
     byoePage = new ByoePage(page)
     expertsPage = new ExpertsPage(page)
-    await loginPage.fillLoginForm(ENV.email, ENV.password)
-    await loginPage.submitCredentials()
-    await loginPage.loginAsUser(ENV.URL, ENV.clientTeaserMode.client_user_ID)
-    await expertsPage.openExpertTab(ENV.URL, ENV.clientTeaserMode.project1_ID)
-    await byoePage.assertExpertTabDisplayed()
-    await byoePage.assertTeserFlashModal()
-    await byoePage.navigateToByoeForm()
+    await loginPage.loginWithIAM(ENV)
+
+    await loginPage.loginAsUser(ENV.URL, ENV.clientFullMode.client_user_ID)
+    await expertsPage.openExpertTab(ENV.URL, ENV.clientFullMode.project1_ID)
   })
 
   test.afterEach(async ({ page }, testInfo) => {
@@ -50,41 +47,20 @@ test.describe.parallel('BYOE modes', () => {
     await sendTestStatusAPI(testInfo)
   })
 
-  test('Check that user is not able to schedule a call in BYOE Teaser mode', async ({
+  test('Check Find Expert when user try to add already added expert', async ({
     page,
   }, testInfo) => {
+    await byoePage.assertExpertTabDisplayed()
+    await byoePage.navigateToByoeForm()
     await byoePage.fillEmailInputWithUniqueEmail(byoeData)
     await byoePage.fillForm(byoeData)
-    await byoePage.asserScheduleFieldsDisabled()
+    await byoePage.checkNoInvitation()
     await byoePage.submitFormWithContinueButton()
     await byoePage.agreeOnAgreement()
-    await expertsPage.asserExpertCardOpened(byoeData)
-    await expertsPage.assertTeaserWarningOnExpertCard()
-  })
-
-  test('Check that Expert can only be created and updated in BYOE Teaser mode', async ({
-    page,
-  }, testInfo) => {
+    await byoePage.assertExpertTabDisplayed()
+    await byoePage.navigateToByoeForm()
     await byoePage.fillEmailInputWithUniqueEmail(byoeData)
-    await byoePage.fillForm(byoeData)
-    await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
+    await byoePage.findAddedExpert()
     await expertsPage.asserExpertCardOpened(byoeData)
-    await expertsPage.searchForExpert(byoeData)
-    await expertsPage.openEditExpertForm()
-    await byoePage.assertFormValues(byoeData)
-    await byoePage.assertBYOEFormAvailable()
-    await byoePage.clearForm()
-    byoeData = generateRandomDataBYOE()
-    await byoePage.fillForm(byoeData)
-    await byoePage.submitFormWithSaveButton()
-    await expertsPage.asserExpertCardOpened(byoeData)
-  })
-
-  test('Check that user can Request feature in BYOE Teaser mode', async ({
-    page,
-  }, testInfo) => {
-    await byoePage.assertTeaserBeforeRequest()
-    await byoePage.assertTeaserAfterRequest()
   })
 })

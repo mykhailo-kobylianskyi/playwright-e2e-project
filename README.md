@@ -20,6 +20,6 @@
 ## Run tests
 
 - Run `npm run report` to open report in browser
-- Run `npm run test-testrail` to start tests headless and with TestRails integration
-- Run `npm run test-headless` to start tests headless
-- Run `npm run test-debug` to start tests visually
+- Run `npm run test-plt-testrail` to start plt tests with TestRails integration
+- Run `npm run test-plt` to start plt version of tests w/o TestRails integration
+- Run `npm run test-lk` to start LK version of tests w/o TestRails integration

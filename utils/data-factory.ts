@@ -27,8 +27,8 @@ export function generateRandomDataBYOE() {
     faker.company.catchPhrase(),
     faker.company.catchPhrase(),
   ]
-  // cosnt  timeZone =  faker.address.timeZone(),
-  // cosnt  country =  faker.address.country(),
+  // const timeZone = faker.address.timeZone()
+  // const country = faker.address.country()
   // HARDCODED UNTILL FIND OUT HOW TO REMOVE UNEXISTED TIMEZONE AND GEO FROM FAKER API
   const timeZone = 'Kiev'
   const country = 'Ukraine'

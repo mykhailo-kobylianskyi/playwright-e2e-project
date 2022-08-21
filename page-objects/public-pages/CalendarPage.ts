@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test'
+import { Page, Locator } from '@playwright/test'
 import { BasePage } from '../BasePage'
 
 export class CalendarPage extends BasePage {
@@ -12,13 +12,7 @@ export class CalendarPage extends BasePage {
   }
 
   async selectAvailableSlot(number) {
-    await this.page.pause()
-    await this.page.locator('div>[cursor="pointer"]>>nth=1').hover()
-    await this.page.pause()
-    await this.page.locator('div>[cursor="pointer"]>>nth=1').click()
-    await this.page
-      .locator('div>[cursor="pointer"]>>nth=1')
-      .click({ delay: 100 })
+    //fix after adjusting calendar
   }
 
   async openProvideTimesFromEmail(data) {

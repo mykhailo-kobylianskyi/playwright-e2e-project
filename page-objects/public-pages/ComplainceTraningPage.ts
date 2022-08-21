@@ -1,5 +1,4 @@
 import { Page, Locator, expect } from '@playwright/test'
-// import { getCurrentDay, getCurrentTimeFormated } from '../../utils/data-helpers'
 import { BasePage } from '../BasePage'
 
 export class ComplianceTrainingPage extends BasePage {
@@ -15,7 +14,10 @@ export class ComplianceTrainingPage extends BasePage {
   async compelteCTFromPlaceholder(data) {
     const newPage = await this.page.context().newPage()
     await newPage.goto(
-      await this.mailClient.getCTLinkFromPlaceholderEmail(data)
+      await this.mailClient.getCTLinkFromPlaceholderEmail(data),
+      {
+        waitUntil: 'domcontentloaded',
+      }
     )
     await expect(
       newPage.locator('button:has-text("Start compliance training")')
@@ -32,13 +34,4 @@ export class ComplianceTrainingPage extends BasePage {
     ).toBeVisible()
     await newPage.close()
   }
-
-  // async completeCT() {
-  //   await this.startButton.click()
-  //   for (let i = 0; i < 9; i++) {
-  //     await this.clickButtonHasText('Next')
-  //   }
-  //   await this.clickButtonHasText('Complete Training')
-  //   await this.assertPresenceByText('Compliance training was completed')
-  // }
 }

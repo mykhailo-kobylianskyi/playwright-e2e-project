@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test'
+import { faker } from '@faker-js/faker'
 import { mapCurrencyWithIndex } from '../../../utils/data-helpers'
 import {
   removeSpaces,
@@ -26,11 +27,27 @@ export class ByoePage extends BasePage {
   readonly callDateInput: Locator
   readonly callScheduleToggle: Locator
   readonly modalDialog: Locator
+  readonly noInvitationRadioButton: Locator
+  readonly yesInvitationRadioButton: Locator
+  readonly invitationTopic: Locator
+  readonly invitationBrief: Locator
+  readonly invitationEnding: Locator
+  readonly invitationSignature: Locator
+  readonly closeDialogModalIcon: Locator
+  readonly editProfileLink: Locator
 
   constructor(page: Page) {
     super(page)
+    this.closeDialogModalIcon = page.locator(
+      'div[role="dialog"]>svg[role="img"]'
+    )
+    this.editProfileLink = page.locator('button:has-text("Edit profile")')
+    this.invitationTopic = page.locator('[placeholder="topic"]')
+    this.invitationBrief = page.locator('textarea[name="angleBrief"]')
+    this.invitationEnding = page.locator('textarea[name="invitationEnding"]')
+    this.invitationSignature = page.locator('textarea[name="signature"]')
     this.addByoeTitle = page.locator('text=Add your own expert')
-    this.addByoeButton = page.locator('text=Add your own expert')
+    this.addByoeButton = page.locator('button:has-text("Add your own expert")')
     this.howItWorksLabel = page.locator('button:has-text("How it works")')
     this.firstnameInput = page.locator('[name=firstName]')
     this.lastnameInput = page.locator('[name=lastName]')
@@ -46,8 +63,13 @@ export class ByoePage extends BasePage {
     this.clearEmailFormIcon = page.locator(':text("Email")+div>>svg >> nth=0')
     this.callDateInput = page.locator('[placeholder="Pick date"]')
     this.callScheduleToggle = page.locator('//span[@name="callCreate"]')
-
     this.modalDialog = this.page.locator('div[role="dialog"]')
+    this.noInvitationRadioButton = this.page.locator(
+      'label:has([name="outreachInvitation"]) >> nth=1'
+    )
+    this.yesInvitationRadioButton = this.page.locator(
+      'label:has([name="outreachInvitation"]) >> nth=0'
+    )
   }
 
   async addTags(tags) {
@@ -58,9 +80,6 @@ export class ByoePage extends BasePage {
   }
 
   async assertExpertTabDisplayed() {
-    await expect(
-      this.page.locator('text=Please confirm to add new expert')
-    ).not.toBeVisible()
     await expect(this.addByoeTitle).toBeVisible()
   }
 
@@ -95,9 +114,10 @@ export class ByoePage extends BasePage {
       'You will be able to schedule a call when this feature is turned on for your account.'
     )
   }
+
   async navigateToByoeForm() {
+    await this.addByoeButton.waitFor({ state: 'attached' })
     await this.addByoeButton.click()
-    await this.howItWorksLabel.waitFor({ timeout: 15000 })
   }
 
   async assertComplainceMessage() {
@@ -117,7 +137,7 @@ export class ByoePage extends BasePage {
     await expect(this.modalDialog).toBeVisible()
   }
   async openHowItWorksModal() {
-    await this.page.click(`button:has-text("How it works")`, { delay: 500 })
+    await this.howItWorksLabel.click({ delay: 500 })
     await expect(this.modalDialog).toBeVisible()
   }
 
@@ -131,7 +151,7 @@ export class ByoePage extends BasePage {
     await this.assertPresenceByText(
       'proSapient will then invoice your organisation for this call. The invoice will be a sum of the expert’s fee and proSapient service fee plus any applicable taxes. The fee to proSapient for calls shorter than 30min is 50 USD; the fee for calls longer than 30min is 100 USD. The service fee is charged in the currency set in your office billing details on the proSapient platform.'
     )
-    await this.page.locator('div[role="dialog"]>svg[role="img"]').click()
+    await this.closeDialogModalIcon.click()
     await expect(this.modalDialog).not.toBeVisible()
   }
   async assertHowItWorksModal() {
@@ -141,7 +161,7 @@ export class ByoePage extends BasePage {
     await this.assertPresenceByText(
       'We will pay the expert pro-rata and invoice you back that amount plus a small service fee and any applicable taxes. The fee to proSapient for calls shorter than 30min is 50 USD; the fee for calls longer than 30min is 100 USD. The service fee is charged in your preferred currency.'
     )
-    await this.page.locator('div[role="dialog"]>svg[role="img"]').click()
+    await this.closeDialogModalIcon.click()
     await expect(this.modalDialog).not.toBeVisible()
   }
 
@@ -195,8 +215,10 @@ export class ByoePage extends BasePage {
   }
 
   async fillEmailInputWithUniqueEmail(data) {
-    // const uniqueEmail = generateUniqueEmail(data)
     await this.selectorPickOptionByName('Email Address', data.email)
+    //add wait for modal to reload may be add hard wait
+    //fix
+    await this.page.waitForLoadState('networkidle', { timeout: 3 * 1000 })
   }
 
   async clearForm() {
@@ -299,6 +321,25 @@ export class ByoePage extends BasePage {
     await this.assertSubmitAgreementButtonEnebled(true)
     await this.submitAgreementButton.click()
     await this.agreementCheckbox.waitFor({ state: 'detached' })
+    await this.editProfileLink.waitFor({
+      state: 'attached',
+      timeout: 20 * 1000,
+    })
+  }
+
+  async checkNoInvitation() {
+    await this.noInvitationRadioButton.click()
+    await this.callScheduleToggle.waitFor({ state: 'attached' })
+  }
+  async checkYesInvitation() {
+    await this.yesInvitationRadioButton.click()
+    await this.callScheduleToggle.waitFor({ state: 'detached' })
+  }
+  async fillInvitation() {
+    await this.invitationTopic.fill(faker.lorem.lines(1))
+    await this.invitationBrief.fill(faker.lorem.lines(5))
+    await this.invitationEnding.fill(faker.lorem.lines(1))
+    await this.invitationSignature.fill(faker.lorem.lines(1))
   }
 
   async enableCallScheduleFields() {

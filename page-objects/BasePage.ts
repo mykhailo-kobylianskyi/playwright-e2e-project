@@ -124,14 +124,15 @@ export class BasePage {
 
   async clearField(field) {
     await field.fill('')
-    await this.page.waitForTimeout(200)
+    await this.page.waitForTimeout(400)
   }
 
   async assertSuccessAllert(message) {
-    await expect(this.successAlert).toBeVisible({ timeout: 10000 })
-    await expect(this.successAlert).toContainText(message, { timeout: 10000 })
+    await expect(this.successAlert).toBeVisible({ timeout: 20000 })
+    await expect(this.successAlert).toContainText(message, { timeout: 20000 })
     await this.successAlert.waitFor({ state: 'detached' })
   }
+
   async selectorPickOptionByIndex(titleName: string, option: number) {
     const element = await this.page.locator(
       ':text("' + titleName + '") + div >> nth=0'
@@ -154,12 +155,9 @@ export class BasePage {
   }
 
   async assertErrorMessageForField(titleName: string, errorMessage: string) {
-    await expect(
-      this.page.locator(':text("' + titleName + '")+ div + div')
-    ).toBeTruthy()
-    await expect(
-      this.page.locator(':text("' + titleName + '") + div + div')
-    ).toContainText(errorMessage)
+    const element = this.page.locator(':text("' + titleName + '")+ div + div')
+    await expect(element).toBeTruthy()
+    await expect(element).toContainText(errorMessage)
   }
 
   async assertSelectorOptions(titleName: string, options) {
@@ -170,7 +168,7 @@ export class BasePage {
     let optionElement
     for (const option of options) {
       optionElement = await this.page.locator(
-        '.select__option >> nth=' + options.indexOf(option)
+        `.select__option >> nth=${options.indexOf(option)}`
       )
       await expect(optionElement).toContainText(option)
     }

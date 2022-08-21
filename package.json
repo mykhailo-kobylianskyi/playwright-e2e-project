@@ -5,14 +5,13 @@
   "main": "index.js",
   "scripts": {
     "pretest": "tsc --incremental -p tests/tsconfig.json",
-    "test-testrail": "npm run pretest && npm run testrail -c _build",
-    "test-headless": "npm run pretest && npm run headless -c _build",
-    "test-debug": "npm run pretest && npm run debug -c _build",
-    "testrail": "playwright test --config=testrun-setup.config.ts && playwright test --config=main.config.ts --project=Chromium --repeat-each 1  --workers 3",
-    "headless": "playwright test --config=testrun-erase.config.ts && playwright test --config=main.config.ts --project=Chromium --repeat-each 1  --workers 3",
-    "debug": " playwright test --config=testrun-erase.config.ts && playwright test --config=debug.config.ts --project=Chromium --repeat-each 1 --workers 3",
-    "report": "npx playwright show-report",
-    "simulate-browser": "npx playwright open --timezone='Europe/Rome' --lang='it-IT' google.com"
+    "test-plt-testrail": "npm run pretest && npm run plt-testrail -c _build",
+    "test-plt": "npm run pretest && npm run plt -c _build",
+    "test-lek": "npm run pretest && npm run lk -c _build",
+    "plt-testrail": "playwright test setup-testrun.spec.ts && playwright test tests/plt-BYOE --config=main.config.ts",
+    "plt": " playwright test erase-testrun.spec.ts && playwright test tests/plt-BYOE --config=main.config.ts",
+    "lk": "playwright test erase-testrun.spec.ts && playwright test  tests/lk-BYOE --config=main.config.ts",
+    "report": "npx playwright show-report"
   },
   "author": "Mykhailo",
   "license": "ISC",

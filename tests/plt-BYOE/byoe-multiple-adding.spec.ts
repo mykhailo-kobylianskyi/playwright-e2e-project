@@ -36,8 +36,8 @@ test.describe.parallel('Multiple submission on a project handling', () => {
     loginPage = new LoginPage(page)
     byoePage = new ByoePage(page)
     expertsPage = new ExpertsPage(page)
-    await loginPage.fillLoginForm(ENV.email, ENV.password)
-    await loginPage.submitCredentials()
+    await loginPage.loginWithEmail(ENV)
+
     await loginPage.loginAsUser(ENV.URL, ENV.clientFullMode.client_user_ID)
     await expertsPage.openExpertTab(ENV.URL, ENV.clientFullMode.project1_ID)
   })

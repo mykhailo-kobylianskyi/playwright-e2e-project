@@ -1,5 +1,4 @@
 import { Page, Locator, expect } from '@playwright/test'
-import { getCurrentDay, getCurrentTimeFormated } from '../../utils/data-helpers'
 import { BasePage } from '../BasePage'
 
 export class ProjectsPage extends BasePage {
@@ -25,6 +24,8 @@ export class ProjectsPage extends BasePage {
   }
 
   async getToProjectsPage(url) {
-    await this.page.goto(url + '/client/projects')
+    await this.page.goto(`${url}/client/projects`, {
+      waitUntil: 'domcontentloaded',
+    })
   }
 }

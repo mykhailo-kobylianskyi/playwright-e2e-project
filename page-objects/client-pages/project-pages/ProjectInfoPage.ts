@@ -1,6 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test'
-import { getCurrentDay, getCurrentTimeFormated } from '../../utils/data-helpers'
-import { BasePage } from '../BasePage'
+import { Page, Locator } from '@playwright/test'
+import { BasePage } from '../../BasePage'
 
 export class InfoPage extends BasePage {
   readonly te1st: Locator
@@ -9,6 +8,8 @@ export class InfoPage extends BasePage {
     super(page)
   }
   async openInfoTab(url, projectId) {
-    await this.page.goto(url + '/client/projects/' + projectId + '/experts')
+    await this.page.goto(`${url}/client/projects/${projectId}/info`, {
+      waitUntil: 'domcontentloaded',
+    })
   }
 }

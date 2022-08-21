@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test'
+import { Page, Locator } from '@playwright/test'
 import { BasePage } from '../BasePage'
 
 export class LoginPage extends BasePage {
@@ -10,20 +10,27 @@ export class LoginPage extends BasePage {
     super(page)
     this.loginField = page.locator('[name=login]')
     this.passwordField = page.locator('[name=password]')
-    this.submitButton = page.locator('[type=submit]')
+    this.submitButton = page.locator('[type=submit]:has-text("Sign In")')
   }
 
-  async fillLoginForm(login: string, password: string) {
-    await this.loginField.type(login)
-    await this.passwordField.type(password)
-  }
-  async submitCredentials() {
+  async loginWithEmail(ENV) {
+    await this.loginField.type(ENV.email)
+    await this.passwordField.type(ENV.password)
     await this.submitButton.click()
-    await this.page.waitForNavigation({ timeout: 20000 })
+    await this.page.waitForURL(new RegExp(`^${ENV.URL}`))
+    await this.page.waitForNavigation({ waitUntil: 'load' })
   }
 
-  async loginAsUser(URL: string, id: string) {
-    await this.page.goto(URL + '/login_as?user_id=' + id)
-    // await this.page.waitForNavigation({ timeout: 20000 })
+  async loginWithIAM(ENV) {
+    await this.loginField.type(ENV.email)
+    await this.passwordField.type(ENV.password)
+    await this.submitButton.click()
+    await this.page.waitForURL(new RegExp(`^${ENV.URL}`))
+  }
+
+  async loginAsUser(URL: string, userID: string) {
+    await this.page.goto(`${URL}/login_as?user_id=${userID}`, {
+      waitUntil: 'domcontentloaded',
+    })
   }
 }

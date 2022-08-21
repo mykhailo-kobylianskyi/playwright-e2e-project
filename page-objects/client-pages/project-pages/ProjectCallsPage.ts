@@ -1,27 +1,29 @@
 import { Page, Locator, expect } from '@playwright/test'
-import {
-  getCurrentDayForDatepicker,
-  getCurrentTimeFormated,
-} from '../../../utils/data-helpers'
 import { BasePage } from '../../BasePage'
 
 export class CallsPage extends BasePage {
   readonly searchInput: Locator
+  readonly secondLineItem: Locator
 
   constructor(page: Page) {
     super(page)
     this.searchInput = page.locator(
       '[placeholder="Filter by expert name (min 3 characters)"]'
     )
+    this.secondLineItem = page.locator('//tbody/tr >>nth=1')
   }
+
   async openCallsTab(url, projectId) {
-    await this.page.goto(url + '/client/projects/' + projectId + '/calls')
+    await this.page.goto(`${url}/client/projects/${projectId}/calls`, {
+      waitUntil: 'domcontentloaded',
+    })
   }
   async searchExpertCall(data) {
     await this.clearField(this.searchInput)
     await this.searchInput.type(data.firstName + ' ' + data.lastName, {
       delay: 10,
     })
+    await this.secondLineItem.waitFor({ state: 'detached' })
   }
 
   async assertCallPresence(data) {

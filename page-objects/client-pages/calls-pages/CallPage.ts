@@ -1,8 +1,4 @@
 import { Page, Locator, expect } from '@playwright/test'
-import {
-  getCurrentDayForDatepicker,
-  getCurrentTimeFormated,
-} from '../../../utils/data-helpers'
 import { BasePage } from '../../BasePage'
 
 export class CallPage extends BasePage {
@@ -44,7 +40,7 @@ export class CallPage extends BasePage {
   }
 
   async bookCallOnRescheduleModal() {
-    await expect(this.rescheduleButton).toBeEnabled({ timeout: 5000 })
+    await expect(this.rescheduleButton).toBeEnabled()
     await this.rescheduleButton.click()
     await this.assertSuccessAllert('Call was scheduled')
     await this.assertPresenceByText('Call scheduled')

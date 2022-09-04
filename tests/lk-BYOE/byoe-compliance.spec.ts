@@ -24,6 +24,9 @@ type Input = {
   angleOptionIndex: number
   linkedinURl: string
 }
+const userEmail = process.env.MASTER_EMAIL
+const userPassword = process.env.MASTER_PASSWORD
+const project1_ID = process.env.PROJECT_ID1
 
 test.describe.parallel('BYOE: Compliance Training', () => {
   let byoeData: Input
@@ -32,19 +35,17 @@ test.describe.parallel('BYOE: Compliance Training', () => {
   let callPage: CallPage
   let expertsPage: ExpertsPage
   let complianceTrainingPage: ComplianceTrainingPage
-  const ENV = require('../../test-data/env-data.json')
 
   test.beforeEach(async ({ page }) => {
     byoeData = generateRandomDataBYOE()
-    await page.goto(ENV.URL)
     loginPage = new LoginPage(page)
     byoePage = new ByoePage(page)
     callPage = new CallPage(page)
     expertsPage = new ExpertsPage(page)
     complianceTrainingPage = new ComplianceTrainingPage(page)
-    await loginPage.loginWithIAM(ENV)
-    await loginPage.loginAsUser(ENV.URL, ENV.clientFullMode.client_user_ID)
-    await expertsPage.openExpertTab(ENV.URL, ENV.clientFullMode.project1_ID)
+    await loginPage.navigate()
+    await loginPage.loginWithIAM(userEmail, userPassword)
+    await expertsPage.openExpertTab(project1_ID)
     await byoePage.assertExpertTabDisplayed()
     await byoePage.navigateToByoeForm()
     await byoePage.fillEmailInputWithUniqueEmail(byoeData)
@@ -62,7 +63,7 @@ test.describe.parallel('BYOE: Compliance Training', () => {
     await byoePage.fillForm(byoeData)
     await byoePage.checkNoInvitation()
     await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
+    await byoePage.agreeOnAgreement(byoeData)
     await byoePage.assertComplainceMessage()
     //checking Complaince Warnign on the Expert card - Call page
     await expertsPage.openExpertSchedulingPanel()
@@ -70,55 +71,58 @@ test.describe.parallel('BYOE: Compliance Training', () => {
     await expertsPage.provideSetTimeSchedulingDetails('30 minutes')
     await expertsPage.assertRateOnSetTimeForm(byoeData.rate)
     await expertsPage.bookCallOnSetTimeForm()
-    await expertsPage.mailClient.assertPlaceholderRecevied(byoeData)
+    await expertsPage.mailLkClient.assertPlaceholderRecevied(byoeData)
     await expertsPage.openExpertsCallPage(byoeData)
     await callPage.assertExpertCardDetails(byoeData)
     await callPage.assertCallDetails(byoeData)
     await byoePage.assertComplainceMessage()
   })
 
-  test('Check that BYOE gets invitation after compliting CT', async ({
-    page,
-  }, testInfo) => {
-    await byoePage.fillForm(byoeData)
-    await byoePage.checkNoInvitation()
-    await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
-    await expertsPage.asserExpertInProejct(byoeData)
-    await expertsPage.openExpertSchedulingPanel()
-    await expertsPage.openSetTimeModal()
-    await expertsPage.provideSetTimeSchedulingDetails('30 minutes')
-    await expertsPage.assertRateOnSetTimeForm(byoeData.rate)
-    await expertsPage.bookCallOnSetTimeForm()
-    await complianceTrainingPage.compelteCTFromPlaceholder(byoeData)
-    await expertsPage.mailClient.assertInvitationRecevied(byoeData)
-  })
+  test.fixme(
+    'Check that BYOE gets invitation after compliting CT',
+    async ({ page }, testInfo) => {
+      await byoePage.fillForm(byoeData)
+      await byoePage.checkNoInvitation()
+      await byoePage.submitFormWithContinueButton()
+      await byoePage.agreeOnAgreement(byoeData)
+      await expertsPage.asserExpertInProejct(byoeData)
+      await expertsPage.openExpertSchedulingPanel()
+      await expertsPage.openSetTimeModal()
+      await expertsPage.provideSetTimeSchedulingDetails('30 minutes')
+      await expertsPage.assertRateOnSetTimeForm(byoeData.rate)
+      await expertsPage.bookCallOnSetTimeForm()
+      await complianceTrainingPage.compelteCTFromPlaceholder(byoeData)
+      await expertsPage.mailLkClient.assertInvitationRecevied(byoeData)
+    }
+  )
 
-  test('Check not compliant expert can complete compliance training after call is scheduled', async ({
-    page,
-  }, testInfo) => {
-    await byoePage.fillForm(byoeData)
-    await byoePage.checkNoInvitation()
-    await byoePage.provideSchedulingDetails('45 minutes')
-    await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
-    // await byoePage.assertSuccessAllert('Call was scheduled')
-    await expertsPage.assertExpertStatus('Call scheduled', byoeData)
-    await complianceTrainingPage.compelteCTFromPlaceholder(byoeData)
-  })
+  test.fixme(
+    'Check not compliant expert can complete compliance training after call is scheduled',
+    async ({ page }, testInfo) => {
+      await byoePage.fillForm(byoeData)
+      await byoePage.checkNoInvitation()
+      await byoePage.provideSchedulingDetails('45 minutes')
+      await byoePage.submitFormWithContinueButton()
+      await byoePage.agreeOnAgreement(byoeData)
+      await byoePage.assertSuccessAllert('Call was scheduled')
+      await expertsPage.assertExpertStatus('Call scheduled', byoeData)
+      await complianceTrainingPage.compelteCTFromPlaceholder(byoeData)
+    }
+  )
 
-  test('Check that client is able to see the date when compliance training was completed', async ({
-    page,
-  }, testInfo) => {
-    await byoePage.fillForm(byoeData)
-    await byoePage.checkNoInvitation()
-    await byoePage.provideSchedulingDetails('45 minutes')
-    await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
-    // await byoePage.assertSuccessAllert('Call was scheduled')
-    await expertsPage.assertExpertStatus('Call scheduled', byoeData)
-    await complianceTrainingPage.compelteCTFromPlaceholder(byoeData)
-    await page.reload()
-    await expertsPage.assertCTCompletedNote()
-  })
+  test.fixme(
+    'Check that client is able to see the date when compliance training was completed',
+    async ({ page }, testInfo) => {
+      await byoePage.fillForm(byoeData)
+      await byoePage.checkNoInvitation()
+      await byoePage.provideSchedulingDetails('45 minutes')
+      await byoePage.submitFormWithContinueButton()
+      await byoePage.agreeOnAgreement(byoeData)
+      await byoePage.assertSuccessAllert('Call was scheduled')
+      await expertsPage.assertExpertStatus('Call scheduled', byoeData)
+      await complianceTrainingPage.compelteCTFromPlaceholder(byoeData)
+      await page.reload()
+      await expertsPage.assertCTCompletedNote()
+    }
+  )
 })

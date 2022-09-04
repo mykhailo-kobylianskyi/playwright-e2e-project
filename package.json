@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "pretest": "tsc --incremental -p tests/tsconfig.json",
-    "test-plt-testrail": "npm run pretest && npm run plt-testrail -c _build",
-    "test-plt": "npm run pretest && npm run plt -c _build",
-    "test-lek": "npm run pretest && npm run lk -c _build",
-    "plt-testrail": "playwright test setup-testrun.spec.ts && playwright test tests/plt-BYOE --config=main.config.ts",
-    "plt": " playwright test erase-testrun.spec.ts && playwright test tests/plt-BYOE --config=main.config.ts",
+    "test-platform-testrail": "npm run pretest && npm run platform-testrail -c _build",
+    "test-platform": "npm run pretest && npm run platform -c _build",
+    "test-lk": "npm run pretest && npm run lk -c _build",
+    "platform-testrail": "playwright test setup-testrun.spec.ts && playwright test tests/platfrom-BYOE --config=main.config.ts",
+    "platform": " playwright test erase-testrun.spec.ts && playwright test tests/platfrom-BYOE --config=main.config.ts",
     "lk": "playwright test erase-testrun.spec.ts && playwright test  tests/lk-BYOE --config=main.config.ts",
     "report": "npx playwright show-report"
   },
@@ -22,6 +22,7 @@
   "dependencies": {
     "@dlenroc/testrail": "1.6.3",
     "@faker-js/faker": "7.1.0",
-    "@playwright/test": "1.21.1"
+    "@playwright/test": "^1.25.1",
+    "dotenv": "^16.0.1"
   }
 }

@@ -1,11 +1,10 @@
 import TestRail from '@dlenroc/testrail'
 const crypto = require('crypto')
-const testRun = require('../test-data/test-run.json')
-const ENV = require('../test-data/env-data.json')
+const testRun = require('../utils/testrails/test-run.json')
 const api = new TestRail({
   host: 'https://prosapient.testrail.net',
-  username: ENV.testRailEmail,
-  password: ENV.testRailPassword,
+  username: process.env.TEST_RAILS_EMAIL,
+  password: process.env.TEST_RAILS_PASSWORD,
 })
 
 export async function getTestCase(testInfo) {

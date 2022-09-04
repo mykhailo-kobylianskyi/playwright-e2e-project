@@ -1,6 +1,13 @@
 export function removeSpaces(string) {
   return string.replace(/\s+/g, '')
 }
+
+export function formatForRegExp(string: string) {
+  var newstring = string.replace(`.`, `\\.`)
+  newstring = newstring.replace(`+`, `\\+`)
+  return newstring
+}
+
 export function getCurrentTimeFormated(hoursInFuture) {
   let time = new Date()
   let hour = (time.getHours() + hoursInFuture) % 24
@@ -36,7 +43,11 @@ export function mapCurrencyWithIndex(currency) {
   }
 }
 
-export function formatDate(option: string, { dd, mm, yyyy }) {
+export function getDateCurrent(option: 'datepicker' | 'invoice' | 'default') {
+  let today = new Date()
+  let dd = String(today.getDate()).padStart(2, '0')
+  let mm = String(today.getMonth() + 1).padStart(2, '0') //January is 0!
+  let yyyy = today.getFullYear()
   let apendix = 'th'
   if (dd[1] == '1') {
     apendix = 'st'
@@ -102,28 +113,20 @@ export function formatDate(option: string, { dd, mm, yyyy }) {
       break
     }
   }
+  switch (option) {
+    case 'datepicker':
+      return `${dd}${apendix} ${month} ${yyyy}`
 
-  if (option == 'datepicker') {
-    return `${dd}${apendix} ${month} ${yyyy}`
-  } else {
-    if (dd[0] == '0') {
-      dd = dd.substring(1)
-    }
-    return `${dd} ${month} ${yyyy}`
+    case 'invoice':
+      if (dd[0] === '0') {
+        dd = dd.slice(1)
+      }
+      return `${dd} ${month.slice(0, 3)} ${yyyy}`
+
+    default:
+      if (dd[0] == '0') {
+        dd = dd.substring(1)
+      }
+      return `${dd} ${month} ${yyyy}`
   }
-}
-
-export function getCurrentDay() {
-  let today = new Date()
-  let dd = String(today.getDate()).padStart(2, '0')
-  let mm = String(today.getMonth() + 1).padStart(2, '0') //January is 0!
-  let yyyy = today.getFullYear()
-  return formatDate('default', { dd, mm, yyyy })
-}
-export function getCurrentDayForDatepicker() {
-  let today = new Date()
-  let dd = String(today.getDate()).padStart(2, '0')
-  let mm = String(today.getMonth() + 1).padStart(2, '0') //January is 0!
-  let yyyy = today.getFullYear()
-  return formatDate('datepicker', { dd, mm, yyyy })
 }

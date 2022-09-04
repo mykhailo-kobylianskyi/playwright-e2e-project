@@ -18,7 +18,7 @@ export class CalendarPage extends BasePage {
   async openProvideTimesFromEmail(data) {
     const newPage = await this.page.context().newPage()
     await newPage.goto(
-      await this.mailClient.getBookingLinkFromRequestTimesEmail(data)
+      await this.mailPtClient.getBookingLinkFromRequestTimesEmail(data)
     )
   }
 }

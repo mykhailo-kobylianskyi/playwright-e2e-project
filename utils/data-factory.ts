@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker'
-import { MailClient } from '../utils/mailosaur-client-manager'
+import { Mail } from '../utils/mailosaur/index'
 
 const crypto = require('crypto')
-const mailClient = new MailClient()
+const mailClient = new Mail()
 
 export function getRandomNumber(max) {
   return Math.floor(Math.random() * max + 1)
@@ -14,11 +14,11 @@ export function getRandomString(length) {
 
 export function generateRandomDataBYOE() {
   const uniqueId = getRandomString(3)
-  const firstName = faker.name.firstName() + getRandomString(1)
-  const lastName = faker.name.lastName() + getRandomString(1)
+  let firstName = faker.name.firstName().replace(`'`, ``) + getRandomString(1)
+  let lastName = faker.name.lastName().replace(`'`, ``) + getRandomString(1)
   const email = `${firstName}-${lastName}@${mailClient.getServerDomain()}`
   const jobTitle = faker.name.jobTitle()
-  const companyName = faker.company.companyName()
+  const companyName = faker.company.companyName() + getRandomString(1)
   const phoneNumber = faker.phone.phoneNumber('+38099#######')
   const rate = faker.finance.amount(0, 1000, 0)
   const tags = [

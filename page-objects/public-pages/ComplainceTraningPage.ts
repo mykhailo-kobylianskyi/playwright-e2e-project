@@ -14,7 +14,7 @@ export class ComplianceTrainingPage extends BasePage {
   async compelteCTFromPlaceholder(data) {
     const newPage = await this.page.context().newPage()
     await newPage.goto(
-      await this.mailClient.getCTLinkFromPlaceholderEmail(data),
+      await this.mailPtClient.getCTLinkFromPlaceholderEmail(data),
       {
         waitUntil: 'domcontentloaded',
       }

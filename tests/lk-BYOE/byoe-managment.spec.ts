@@ -24,6 +24,10 @@ type Input = {
   linkedinURl: string
 }
 
+const userEmail = process.env.MASTER_EMAIL
+const userPassword = process.env.MASTER_PASSWORD
+const project1_ID = process.env.PROJECT_ID1
+
 test.describe.parallel('Managment', () => {
   let byoeData: Input
   let byoePage: ByoePage
@@ -31,26 +35,23 @@ test.describe.parallel('Managment', () => {
 
   let loginPage: LoginPage
   let expertsPage: ExpertsPage
-  const ENV = require('../../test-data/env-data.json')
 
   test.beforeEach(async ({ page }) => {
     byoeData = generateRandomDataBYOE()
-    await page.goto(ENV.URL)
     loginPage = new LoginPage(page)
     byoePage = new ByoePage(page)
-    callPage = new CallPage(page)
     expertsPage = new ExpertsPage(page)
-    await loginPage.loginWithIAM(ENV)
-
-    await loginPage.loginAsUser(ENV.URL, ENV.clientFullMode.client_user_ID)
-    await expertsPage.openExpertTab(ENV.URL, ENV.clientFullMode.project1_ID)
+    callPage = new CallPage(page)
+    await loginPage.navigate()
+    await loginPage.loginWithIAM(userEmail, userPassword)
+    await expertsPage.openExpertTab(project1_ID)
     await byoePage.assertExpertTabDisplayed()
     await byoePage.navigateToByoeForm()
     await byoePage.fillEmailInputWithUniqueEmail(byoeData)
     await byoePage.fillForm(byoeData)
     await byoePage.checkNoInvitation()
     await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
+    await byoePage.agreeOnAgreement(byoeData)
   })
 
   test.afterEach(async ({ page }, testInfo) => {
@@ -102,7 +103,7 @@ test.describe.parallel('Managment', () => {
     await byoePage.fillForm(byoeData)
     await byoePage.checkNoInvitation()
     await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
+    await byoePage.agreeOnAgreement(byoeData)
     await expertsPage.searchForExpert(byoeData, 'detailed')
     await expertsPage.rejectExpert()
     await expertsPage.filterExpertsBy('Show rejected experts')
@@ -133,7 +134,7 @@ test.describe.parallel('Managment', () => {
     await expertsPage.provideSetTimeSchedulingDetails('30 minutes')
     await expertsPage.assertRateOnSetTimeForm(byoeData.rate)
     await expertsPage.bookCallOnSetTimeForm()
-    await expertsPage.mailClient.assertPlaceholderRecevied(byoeData)
+    await expertsPage.mailLkClient.assertPlaceholderRecevied(byoeData)
     await expertsPage.openExpertsCallPage(byoeData)
     await callPage.assertCallDetails(byoeData)
     await callPage.addCallNote(

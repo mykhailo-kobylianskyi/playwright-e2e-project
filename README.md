@@ -13,13 +13,11 @@
 
 ## Before running tests
 
-- Create a json file `env-data.json` in `/test-data` folder.
-- In the same folder present `env-data.example` with file structure.
-- Copy from example and specify nececery parameters in `env-data.json`
+- Create .env file in project root
 
 ## Run tests
 
 - Run `npm run report` to open report in browser
-- Run `npm run test-plt-testrail` to start plt tests with TestRails integration
-- Run `npm run test-plt` to start plt version of tests w/o TestRails integration
+- Run `npm run test-platform-testrail` to start Platfrom tests with TestRails integration
+- Run `npm run test-platform` to start Platfrom version of tests w/o TestRails integration
 - Run `npm run test-lk` to start LK version of tests w/o TestRails integration

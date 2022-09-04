@@ -22,40 +22,38 @@ type Input = {
   angleOptionIndex: number
   linkedinURl: string
 }
+const userEmail = process.env.MASTER_EMAIL
+const userPassword = process.env.MASTER_PASSWORD
+const project1_ID = process.env.PROJECT_ID1
 
 test.describe.parallel('Multiple submission on a project handling', () => {
   let byoeData: Input
   let byoePage: ByoePage
   let loginPage: LoginPage
   let expertsPage: ExpertsPage
-  const ENV = require('../../test-data/env-data.json')
 
   test.beforeEach(async ({ page }) => {
     byoeData = generateRandomDataBYOE()
-    await page.goto(ENV.URL)
     loginPage = new LoginPage(page)
     byoePage = new ByoePage(page)
     expertsPage = new ExpertsPage(page)
-    await loginPage.loginWithEmail(ENV)
-
-    await loginPage.loginAsUser(ENV.URL, ENV.clientFullMode.client_user_ID)
-    await expertsPage.openExpertTab(ENV.URL, ENV.clientFullMode.project1_ID)
+    await loginPage.navigate()
+    await loginPage.loginWithEmail(userEmail, userPassword)
+    await expertsPage.openExpertTab(project1_ID)
+    await byoePage.assertExpertTabDisplayed()
+    await byoePage.navigateToByoeForm()
   })
 
-  test.afterEach(async ({ page }, testInfo) => {
+  test.afterEach(async ({}, testInfo) => {
     loginPage.addScreenshotUponFailure(testInfo)
     await sendTestStatusAPI(testInfo)
   })
 
-  test('Check Find Expert when user try to add already added expert', async ({
-    page,
-  }, testInfo) => {
-    await byoePage.assertExpertTabDisplayed()
-    await byoePage.navigateToByoeForm()
+  test('Check Find Expert when user try to add already added expert', async () => {
     await byoePage.fillEmailInputWithUniqueEmail(byoeData)
     await byoePage.fillForm(byoeData)
     await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
+    await byoePage.agreeOnAgreement(byoeData)
     await byoePage.assertExpertTabDisplayed()
     await byoePage.navigateToByoeForm()
     await byoePage.fillEmailInputWithUniqueEmail(byoeData)

@@ -110,8 +110,5 @@ playwright-report/
 
 .DS_Store
 
-test-data/env-data.json
-
 _build/
 
-test-data/test-run.json

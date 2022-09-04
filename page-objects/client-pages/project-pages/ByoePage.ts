@@ -3,10 +3,11 @@ import { faker } from '@faker-js/faker'
 import { mapCurrencyWithIndex } from '../../../utils/data-helpers'
 import {
   removeSpaces,
-  getCurrentDayForDatepicker,
+  getDateCurrent,
   getCurrentTimeFormated,
 } from '../../../utils/data-helpers'
 import { BasePage } from '../../BasePage'
+import { getRandomString } from '../../../utils/data-factory'
 
 export class ByoePage extends BasePage {
   readonly addByoeTitle: Locator
@@ -216,8 +217,6 @@ export class ByoePage extends BasePage {
 
   async fillEmailInputWithUniqueEmail(data) {
     await this.selectorPickOptionByName('Email Address', data.email)
-    //add wait for modal to reload may be add hard wait
-    //fix
     await this.page.waitForLoadState('networkidle', { timeout: 3 * 1000 })
   }
 
@@ -316,15 +315,16 @@ export class ByoePage extends BasePage {
   async findAddedExpert() {
     await this.clickButtonHasText('Find expert')
   }
-  async agreeOnAgreement() {
+  async agreeOnAgreement(data) {
     await this.checkAggrementCheckbox()
     await this.assertSubmitAgreementButtonEnebled(true)
     await this.submitAgreementButton.click()
     await this.agreementCheckbox.waitFor({ state: 'detached' })
-    await this.editProfileLink.waitFor({
-      state: 'attached',
-      timeout: 20 * 1000,
-    })
+    await this.page
+      .locator(`text='${data.jobTitle} at ${data.companyName}'`)
+      .waitFor({
+        state: 'attached',
+      })
   }
 
   async checkNoInvitation() {
@@ -336,10 +336,12 @@ export class ByoePage extends BasePage {
     await this.callScheduleToggle.waitFor({ state: 'detached' })
   }
   async fillInvitation() {
-    await this.invitationTopic.fill(faker.lorem.lines(1))
-    await this.invitationBrief.fill(faker.lorem.lines(5))
-    await this.invitationEnding.fill(faker.lorem.lines(1))
-    await this.invitationSignature.fill(faker.lorem.lines(1))
+    await this.invitationTopic.fill(`Invitation topic(${getRandomString(4)})`)
+    await this.invitationBrief.fill(`Invitation Brief(${getRandomString(4)})`)
+    await this.invitationEnding.fill(`Invitation Ending(${getRandomString(4)})`)
+    await this.invitationSignature.fill(
+      `Invitation Signature(${getRandomString(4)})`
+    )
   }
 
   async enableCallScheduleFields() {
@@ -347,7 +349,7 @@ export class ByoePage extends BasePage {
     await this.callDateInput.waitFor({ state: 'attached' })
   }
   async provideSchedulingDetails(callDuration) {
-    let currentDate = getCurrentDayForDatepicker()
+    let currentDate = getDateCurrent('datepicker')
     let currentTime = getCurrentTimeFormated(1)
     await this.enableCallScheduleFields()
     await this.selectCallDate(currentDate)

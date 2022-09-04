@@ -12,20 +12,23 @@ export class LoginPage extends BasePage {
     this.passwordField = page.locator('[name=password]')
     this.submitButton = page.locator('[type=submit]:has-text("Sign In")')
   }
+  async navigate() {
+    await this.page.goto(`${this.baseURL}/login`)
+  }
 
-  async loginWithEmail(ENV) {
-    await this.loginField.type(ENV.email)
-    await this.passwordField.type(ENV.password)
+  async loginWithEmail(email, password) {
+    await this.loginField.type(email)
+    await this.passwordField.type(password)
     await this.submitButton.click()
-    await this.page.waitForURL(new RegExp(`^${ENV.URL}`))
+    await this.page.waitForURL(new RegExp(`^${this.baseURL}`))
     await this.page.waitForNavigation({ waitUntil: 'load' })
   }
 
-  async loginWithIAM(ENV) {
-    await this.loginField.type(ENV.email)
-    await this.passwordField.type(ENV.password)
+  async loginWithIAM(email, password) {
+    await this.loginField.type(email)
+    await this.passwordField.type(password)
     await this.submitButton.click()
-    await this.page.waitForURL(new RegExp(`^${ENV.URL}`))
+    await this.page.waitForURL(new RegExp(`^${this.baseURL}`))
   }
 
   async loginAsUser(URL: string, userID: string) {

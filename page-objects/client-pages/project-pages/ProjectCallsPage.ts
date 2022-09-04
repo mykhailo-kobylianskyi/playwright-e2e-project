@@ -13,8 +13,8 @@ export class CallsPage extends BasePage {
     this.secondLineItem = page.locator('//tbody/tr >>nth=1')
   }
 
-  async openCallsTab(url, projectId) {
-    await this.page.goto(`${url}/client/projects/${projectId}/calls`, {
+  async openCallsTab1(projectId) {
+    await this.page.goto(`${this.baseURL}/client/projects/${projectId}/calls`, {
       waitUntil: 'domcontentloaded',
     })
   }

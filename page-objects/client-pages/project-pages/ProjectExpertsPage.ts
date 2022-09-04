@@ -1,5 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test'
-import { getCurrentDay } from '../../../utils/data-helpers'
+import { getDateCurrent } from '../../../utils/data-helpers'
 import { BasePage } from '../../BasePage'
 
 export class ExpertsPage extends BasePage {
@@ -133,10 +133,13 @@ export class ExpertsPage extends BasePage {
     await this.asserExpertCardOpened(data)
   }
 
-  async openExpertTab(url, projectId) {
-    await this.page.goto(`${url}/client/projects/${projectId}/experts`, {
-      waitUntil: 'domcontentloaded',
-    })
+  async openExpertTab(projectId: string) {
+    await this.page.goto(
+      `${this.baseURL}/client/projects/${projectId}/experts`,
+      {
+        waitUntil: 'domcontentloaded',
+      }
+    )
   }
 
   async assertConflictCallWarning() {
@@ -177,7 +180,7 @@ export class ExpertsPage extends BasePage {
       'text=No bio available for the experts you or your team have added.'
     )
     this.assertPresenceByText(
-      `Expert completed compliance training on ${getCurrentDay()}`
+      `Expert completed compliance training on ${getDateCurrent('default')}`
     )
   }
 

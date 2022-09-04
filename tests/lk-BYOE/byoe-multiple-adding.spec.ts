@@ -23,23 +23,24 @@ type Input = {
   linkedinURl: string
 }
 
+const userEmail = process.env.MASTER_EMAIL
+const userPassword = process.env.MASTER_PASSWORD
+const project1_ID = process.env.PROJECT_ID1
+
 test.describe.parallel('Multiple submission on a project handling', () => {
   let byoeData: Input
   let byoePage: ByoePage
   let loginPage: LoginPage
   let expertsPage: ExpertsPage
-  const ENV = require('../../test-data/env-data.json')
 
   test.beforeEach(async ({ page }) => {
     byoeData = generateRandomDataBYOE()
-    await page.goto(ENV.URL)
     loginPage = new LoginPage(page)
     byoePage = new ByoePage(page)
     expertsPage = new ExpertsPage(page)
-    await loginPage.loginWithIAM(ENV)
-
-    await loginPage.loginAsUser(ENV.URL, ENV.clientFullMode.client_user_ID)
-    await expertsPage.openExpertTab(ENV.URL, ENV.clientFullMode.project1_ID)
+    await loginPage.navigate()
+    await loginPage.loginWithIAM(userEmail, userPassword)
+    await expertsPage.openExpertTab(project1_ID)
   })
 
   test.afterEach(async ({ page }, testInfo) => {
@@ -56,7 +57,7 @@ test.describe.parallel('Multiple submission on a project handling', () => {
     await byoePage.fillForm(byoeData)
     await byoePage.checkNoInvitation()
     await byoePage.submitFormWithContinueButton()
-    await byoePage.agreeOnAgreement()
+    await byoePage.agreeOnAgreement(byoeData)
     await byoePage.assertExpertTabDisplayed()
     await byoePage.navigateToByoeForm()
     await byoePage.fillEmailInputWithUniqueEmail(byoeData)

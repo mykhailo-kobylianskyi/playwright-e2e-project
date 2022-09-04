@@ -1,28 +1,29 @@
-import { Page, Locator, expect } from '@playwright/test'
-import {
-  getCurrentDayForDatepicker,
-  getCurrentTimeFormated,
-} from '../utils/data-helpers'
-import { MailClient } from '../utils/mailosaur-client-manager'
+import { Page, Locator, expect, chromium, request } from '@playwright/test'
+import { getDateCurrent, getCurrentTimeFormated } from '../utils/data-helpers'
+import { MailLkClient } from '../utils/mailosaur/lk-emails'
+import { MailPtClient } from '../utils/mailosaur/platfrom-emails'
 
 export class BasePage {
   readonly page: Page
-  readonly mailClient: MailClient
+  readonly baseURL
+  readonly mailLkClient: MailLkClient
+  readonly mailPtClient: MailPtClient
   readonly successAlert: Locator
   readonly noteInput: Locator
   readonly modalWindow: Locator
 
   constructor(page: Page) {
-    this.mailClient = new MailClient()
     this.page = page
-
+    this.baseURL = process.env.URL
+    this.mailLkClient = new MailLkClient()
+    this.mailPtClient = new MailPtClient()
     this.successAlert = page.locator('[type=success]')
     this.noteInput = page.locator('textarea')
     this.modalWindow = page.locator('[role="dialog"]')
   }
 
   async provideSetTimeSchedulingDetails(callDuration) {
-    let currentDate = getCurrentDayForDatepicker()
+    let currentDate = getDateCurrent('datepicker')
     let currentTime = getCurrentTimeFormated(1)
     await this.selectCallDate(currentDate)
     await this.selectorPickOptionByName('Call time (GMT+3)', currentTime)
@@ -42,6 +43,10 @@ export class BasePage {
 
   async assertPresenceByText(text) {
     await expect(this.page.locator(`text=${text}`)).toBeVisible()
+  }
+
+  async assertAbsenceByText(text) {
+    await expect(this.page.locator(`text=${text}`)).not.toBeVisible()
   }
 
   async clickByText(text) {
@@ -71,7 +76,7 @@ export class BasePage {
   }
 
   async assertPrecenceOnPage(rout) {
-    await expect(this.page).toHaveURL(new RegExp(`${rout}`))
+    await expect(this.page).toHaveURL(new RegExp(`^${this.baseURL}${rout}`))
   }
 
   // FIX method after adding ID to the calendar date picker
@@ -128,7 +133,7 @@ export class BasePage {
   }
 
   async assertSuccessAllert(message) {
-    await expect(this.successAlert).toBeVisible({ timeout: 20000 })
+    // await expect(this.successAlert).toBeVisible({ timeout: 20000 })
     await expect(this.successAlert).toContainText(message, { timeout: 20000 })
     await this.successAlert.waitFor({ state: 'detached' })
   }
@@ -174,6 +179,11 @@ export class BasePage {
     }
   }
 
+  async assertElementIsNotClickable(element) {
+    const attributs = await element.innerHTML()
+    expect(await attributs.includes('href=')).toBeFalsy()
+  }
+
   async addScreenshotUponFailure(testInfo) {
     if (testInfo.status == 'failed') {
       const screenshot = await this.page.screenshot()
@@ -182,5 +192,24 @@ export class BasePage {
         contentType: 'image/png',
       })
     }
+  }
+
+  async closeRateModal(rate: number) {
+    await this.page.reload()
+    await this.page.locator(`[data-icon="star"] >>nth=${rate}`).click()
+    await this.clickButtonHasText('Submit')
+    await this.page
+      .locator(`[data-icon="star"] >>nth=${rate}`)
+      .waitFor({ state: 'detached' })
+  }
+  async clientLogout() {
+    this.page.locator('[data-test-id="open-profile"]').click()
+    this.page.locator('[action="/logout"]').click()
+  }
+  async adminLogout() {
+    this.page.locator('.dropdown_toggle-text').click()
+    this.page.waitForSelector('li:has-text("Log out")')
+    this.page.locator('li:has-text("Log out")').click()
+    this.page.waitForNavigation()
   }
 }

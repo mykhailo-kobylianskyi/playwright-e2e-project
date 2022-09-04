@@ -14,6 +14,12 @@ export class CallPage extends BasePage {
       'div[role="dialog"] button:has-text("Reschedule")'
     )
   }
+
+  async getcallID() {
+    let url: string = await this.page.url()
+    return url.replace(`${this.baseURL}/client/calls/`, '')
+  }
+
   async assertExpertCardDetails(data) {
     await this.assertPresenceByText(`${data.firstName} ${data.lastName}`)
     await this.assertPresenceByText(`${data.jobTitle} at ${data.companyName}`)
@@ -32,6 +38,7 @@ export class CallPage extends BasePage {
     //check date
     //check time
     // check duration
+    // fix
   }
 
   async openRescheduleSetTimeModal() {

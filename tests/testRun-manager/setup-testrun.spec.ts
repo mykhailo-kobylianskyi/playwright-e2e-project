@@ -10,7 +10,7 @@ test.describe('Setup test rail', () => {
   let testRun
   const fs = require('fs')
   const api = new TestRail({
-    host: 'https://prosapient.testrail.net',
+    host: process.env.TEST_RAILS_HOST,
     username: process.env.TEST_RAILS_EMAIL,
     password: process.env.TEST_RAILS_PASSWORD,
   })

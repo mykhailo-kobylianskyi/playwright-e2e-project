@@ -4,11 +4,13 @@
   "description": "testing project",
   "main": "index.js",
   "scripts": {
-    "pretest": "tsc --incremental -p tests/tsconfig.json",
-    "test-platform-testrail": "npm run pretest && npm run platform-testrail -c _build",
+    "pretest": "tsc --incremental -p tsconfig.json",
+    "test-testrail": "npm run pretest && npm run testrail -c _build",
+    "test-testrail-update": "npm run pretest && npm run testrail-update -c _build",
     "test-platform": "npm run pretest && npm run platform -c _build",
     "test-lk": "npm run pretest && npm run lk -c _build",
-    "platform-testrail": "playwright test setup-testrun.spec.ts && playwright test tests/platfrom-BYOE --config=main.config.ts",
+    "testrail": "playwright test setup-testrun.spec.ts && playwright test tests/platfrom-BYOE --config=main.config.ts",
+    "testrail-update": " playwright test tests/platfrom-BYOE --config=main.config.ts",
     "platform": " playwright test erase-testrun.spec.ts && playwright test tests/platfrom-BYOE --config=main.config.ts",
     "lk": "playwright test erase-testrun.spec.ts && playwright test  tests/lk-BYOE --config=main.config.ts",
     "report": "npx playwright show-report"
@@ -23,6 +25,7 @@
     "@dlenroc/testrail": "1.6.3",
     "@faker-js/faker": "7.1.0",
     "@playwright/test": "^1.25.1",
+    "currency-converter-lt": "^1.3.1",
     "dotenv": "^16.0.1"
   }
 }

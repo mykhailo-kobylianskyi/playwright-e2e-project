@@ -112,3 +112,5 @@ playwright-report/
 
 _build/
 
+
+src/utils/testrails/test-run.json
